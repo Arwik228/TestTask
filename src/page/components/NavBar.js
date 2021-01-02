@@ -28,7 +28,7 @@ export default class NavBar extends Component {
                             </Link>
                         </Nav>
                         <Form inline>
-                            <Button style={{ marginLeft: "10px" }} onClick={() => { this.exit(); this.props.exit() }}>Выход</Button>
+                            <Button onClick={() => { this.exit(); this.props.exit() }}>Выход</Button>
                         </Form>
                     </Navbar.Collapse>
                 </Navbar >

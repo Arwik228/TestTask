@@ -6,7 +6,13 @@ import Loading from './components/Loading'
 
 export default class Registration extends Component {
     timeout = null;
-
+    errorText = {
+        login: "Некорректный email-адрес",
+        password: "Пароль 8+ символов, буквы В/Н регистра",
+        confirm: "Пароли не совпадают",
+        year: "Ошибка в формате года"
+    }
+    
     constructor(props) {
         super(props);
         this.state = {
@@ -31,7 +37,7 @@ export default class Registration extends Component {
             this.setState({ email: email.replaceAll(" ", ""), error: "" });
         } else {
             this.setState({ email: false });
-            this.errorRender("Некорректный email-адрес");
+            this.errorRender(this.errorText.login);
         }
     }
 
@@ -41,7 +47,7 @@ export default class Registration extends Component {
             this.setState({ password: password, error: "" });
         } else {
             this.setState({ password: false });
-            this.errorRender("Пароль 8+ символов, буквы В/Н регистра");
+            this.errorRender(this.errorText.password);
         }
     }
 
@@ -51,7 +57,7 @@ export default class Registration extends Component {
             this.setState({ confirm: true, error: "" });
         } else {
             this.setState({ confirm: false });
-            this.errorRender("Пароли не совпадают");
+            this.errorRender(this.errorText.confirm);
         }
     }
 
@@ -73,7 +79,8 @@ export default class Registration extends Component {
         let usersTable = this.props.db.collection("users");
         let email = this.state.email;
         let password = this.state.password;
-        if (email && password && this.state.confirm) {
+        let confirm = this.state.confirm;
+        if (email && password && confirm) {
             this.setState({ loading: true });
             let sample = await usersTable.where("email", "==", email).get();
             if (sample.docs.length) {
@@ -86,7 +93,18 @@ export default class Registration extends Component {
                 this.Auth(newUser.id);
             }
         } else {
-            this.errorRender("Проверьте корректность данных");
+            if (!email) {
+                this.errorRender(this.errorText.login);
+                return 0;
+            }
+            if (!password) {
+                this.errorRender(this.errorText.password);
+                return 0;
+            }
+            if (!confirm) {
+                this.errorRender(this.errorText.confirm);
+                return 0;
+            }
         }
     }
 
@@ -99,8 +117,12 @@ export default class Registration extends Component {
                     <NavBar />
                     {this.state.loading ? <Loading /> : false}
                     <form style={styles.container}>
-                        <div className="alert alert-danger" style={this.state.error ? { opacity: 1, height: "5em" } : { opacity: 0, height: "5em" }} >
-                            <strong>Error!</strong> {this.state.error}
+                        <div className="alert alert-danger" style={this.state.error ? {
+                            opacity: 1, height: "5em", display: "table", width: "100%"
+                        } : { opacity: 0, height: "5em", display: "table", width: "100%" }} >
+                            <div style={{ display: "table-cell", verticalAlign: "middle" }}>
+                                <strong>Error!</strong> {this.state.error}
+                            </div>
                         </div>
                         <div>
                             <Form.Label>Email адрес</Form.Label>
@@ -119,7 +141,7 @@ export default class Registration extends Component {
                         </div>
                         <div style={{ marginTop: "10px" }}>
                             <Button variant="primary" className="btn-primary btn btn-block" onClick={() => this.RegUser()} >
-                                Вход
+                                Регистрация
                             </Button>
                         </div>
                     </form>

@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import NavBar from './components/NavBar'
 import EditorForm from './components/EditorForm'
+import ConfirmDelete from './components/ConfirmDelete'
 import Books from './components/Books'
 import Icon from './components/Icon'
 
@@ -12,7 +13,8 @@ export default class Index extends Component {
         editorForm: false,
         idBook: false,
         values: false,
-        view: false
+        view: false,
+        deleteForm: false
     }
 
     async componentDidMount() {
@@ -35,7 +37,7 @@ export default class Index extends Component {
     }
 
     closeForm() {
-        this.setState({ editorForm: false, idBook: false, values: false, view: false });
+        this.setState({ editorForm: false, idBook: false, values: false, view: false, deleteForm: false });
     }
 
     async editForm(id) {
@@ -97,6 +99,16 @@ export default class Index extends Component {
     async deleteBook(id) {
         this.setState({ content: this.state.content.filter((book => book.id !== id)) })
         await this.props.db.collection("books").doc(id).delete();
+        this.closeForm();
+    }
+
+    deleteForm(id) {
+        let bookInfo = this.state.content.filter(e => e.id === id);
+        if (bookInfo[0]) {
+            this.setState({ deleteForm: true, idBook: id, values: bookInfo[0].data });
+        } else {
+            console.log("Error, cant find this book")
+        }
     }
 
     render() {
@@ -110,6 +122,9 @@ export default class Index extends Component {
                             create={(name, authors, year, isbn) => { this.createBook(name, authors, year, isbn) }}
                             close={() => this.closeForm()} />
                         : false)}
+                    {this.state.deleteForm ?
+                        <ConfirmDelete id={this.state.idBook} deleteBook={(id) => { this.deleteBook(id) }} close={() => this.closeForm()} values={this.state.values} />
+                        : false}
                     <NavBar exit={() => this.exitFunction()} />
                     <div style={styles.container}>
                         <button className="btn btn-block btn-success" onClick={() => this.create()}>Создать</button>
@@ -124,7 +139,7 @@ export default class Index extends Component {
                                         <button className="btn btn-outline-warning" style={{ margin: "0 5px" }} onClick={() => this.editForm(index['id'])}>
                                             <Icon name="edit" />
                                         </button>
-                                        <button className="btn btn-outline-danger" onClick={() => this.deleteBook(index['id'])}>
+                                        <button className="btn btn-outline-danger" onClick={() => this.deleteForm(index['id'])}>
                                             <Icon name="delete" />
                                         </button>
                                     </div>

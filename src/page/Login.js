@@ -6,7 +6,6 @@ import Loading from './components/Loading'
 
 export default class Login extends Component {
     timeout = null;
-
     constructor(props) {
         super(props);
         this.state = {
@@ -61,8 +60,12 @@ export default class Login extends Component {
                     <NavBar />
                     {this.state.loading ? <Loading /> : false}
                     <form style={styles.container}>
-                        <div className="alert alert-danger" style={(this.state.error ? { opacity: 1, height: "5em" } : { opacity: 0, height: "5em" })} >
-                            <strong>Error!</strong> {this.state.error}
+                        <div className="alert alert-danger" style={this.state.error ? {
+                            opacity: 1, height: "5em", display: "table", width: "100%"
+                        } : { opacity: 0, height: "5em", display: "table", width: "100%" }} >
+                            <div style={{ display: "table-cell", verticalAlign: "middle" }}>
+                                <strong>Error!</strong> {this.state.error}
+                            </div>
                         </div>
                         <div>
                             <Form.Label>Email адрес</Form.Label>
