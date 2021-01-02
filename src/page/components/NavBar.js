@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Navbar, Nav, Button, Form } from "react-bootstrap"
 export default class NavBar extends Component {
     state = {
-        auth: localStorage.user
+        auth: localStorage.user,
+        path: window.location.pathname.slice(1)
     }
 
     exit() {
@@ -19,10 +20,10 @@ export default class NavBar extends Component {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
-                            <Link to="/" className="nav-link">
+                            <Link to="/" className={this.state.path === '' ? 'nav-link active' : 'nav-link'}>
                                 Главная
                             </Link>
-                            <Link to="/editor" className="nav-link">
+                            <Link to="/editor" className={this.state.path === 'editor' ? 'nav-link active' : 'nav-link'}>
                                 Редактор
                             </Link>
                         </Nav>
@@ -39,13 +40,13 @@ export default class NavBar extends Component {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
-                            <Link to="/" className="nav-link">
+                            <Link to="/" className={this.state.path === '' ? 'nav-link active' : 'nav-link'}>
                                 Главная
                             </Link>
-                            <Link to="/registration" className="nav-link">
+                            <Link to="/registration" className={this.state.path === 'registration' ? 'nav-link active' : 'nav-link'}>
                                 Регистрация
                             </Link>
-                            <Link to="/login" className="nav-link">
+                            <Link to="/login" className={this.state.path === 'login' ? 'nav-link active' : 'nav-link'}>
                                 Вход
                             </Link>
                         </Nav>

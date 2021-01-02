@@ -1,6 +1,8 @@
 import { Component } from 'react';
 import { Button } from "react-bootstrap"
 export default class EditorForm extends Component {
+    timeout = null;
+
     state = {
         name: false,
         authors: false,
@@ -10,14 +12,16 @@ export default class EditorForm extends Component {
     }
 
     async errorRender(str) {
+        clearTimeout(this.timeout);
         this.setState({ error: str });
-        await setTimeout(() => this.setState({ error: "" }), 2000)
+        this.timeout = await setTimeout(() => this.setState({ error: "" }), 2500);
     }
 
     isbnValidate(str) {
         let reg = RegExp(/^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/);
-        if (reg.test(str)) {
-            this.setState({ error: "", isbn: str });
+        let filterStr = str.replaceAll(" ", "");
+        if (reg.test(filterStr)) {
+            this.setState({ error: "", isbn: filterStr });
         } else {
             this.errorRender("Ошибка в ISBN");
             this.setState({ isbn: false });
@@ -43,7 +47,7 @@ export default class EditorForm extends Component {
     }
 
     yearValidate(int) {
-        if (!isNaN(int)) {
+        if (RegExp(/^\d\d\d\d$/).test(int)) {
             this.setState({ error: "", year: int });
         } else {
             this.errorRender("Ошибка в Годе");
@@ -80,29 +84,30 @@ export default class EditorForm extends Component {
             <div style={this.styles.container}>
                 <div style={this.styles.form}>
                     <div style={this.styles.top}>
-                        <Button onClick={() => { this.props.close() }}>Закрыть</Button>
+                        <Button style={{ marginLeft: "auto" }} onClick={() => { this.props.close() }}>Закрыть</Button>
                     </div>
                     <div style={{ width: "80%", marginLeft: "10%", padding: "10px 0" }}>
                         <center><h6 style={{ height: "16px" }}>{this.state.error}</h6></center>
                         <div className="form-group">
                             <label htmlFor="formName">Название</label>
-                            <input type="text" className="form-control" id="formName" placeholder="Название" onChange={(str) => { this.nameValidate(str.target.value) }} defaultValue={this.props.values['name'] || ""} />
+                            <input type="text" disabled={this.props.view} className="form-control" id="formName" placeholder="Название" onChange={(str) => { this.nameValidate(str.target.value) }} defaultValue={this.props.values['name'] || ""} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="formName">Авторы</label>
-                            <input type="text" className="form-control" id="formAuthor" placeholder="Авторы" onChange={(str) => { this.authorsValidate(str.target.value) }} defaultValue={this.props.values['authors'] || ""} />
+                            <input type="text" disabled={this.props.view} className="form-control" id="formAuthor" placeholder="Авторы" onChange={(str) => { this.authorsValidate(str.target.value) }} defaultValue={this.props.values['authors'] || ""} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="formYear">Год издания</label>
-                            <input type="text" className="form-control" id="formYear" placeholder="Год издания" onChange={(str) => { this.yearValidate(str.target.value) }} defaultValue={this.props.values['year'] || ""} />
+                            <input type="text" disabled={this.props.view} className="form-control" id="formYear" placeholder="Год издания" onChange={(str) => { this.yearValidate(str.target.value) }} defaultValue={this.props.values['year'] || ""} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="formISBN">ISBN</label>
-                            <input type="text" className="form-control" id="formISBN" placeholder="ISBN" onChange={(str) => { this.isbnValidate(str.target.value) }} defaultValue={this.props.values['ISBN'] || ""} />
+                            <input type="text" disabled={this.props.view} className="form-control" id="formISBN" placeholder="ISBN" onChange={(str) => { this.isbnValidate(str.target.value) }} defaultValue={this.props.values['ISBN'] || ""} />
                         </div>
                         {
                             this.props.id ? (
-                                <button className="btn btn-outline-warning btn-block" onClick={() => { this.changeBook() }}>Редактировать</button>
+                                this.props.view ? false :
+                                    (<button className="btn btn-outline-warning btn-block" onClick={() => { this.changeBook() }}>Редактировать</button>)
                             ) : (
                                     <button className="btn  btn-outline-success btn-block" onClick={() => { this.createBook() }}>Создать</button>
                                 )
@@ -138,7 +143,8 @@ export default class EditorForm extends Component {
         top: {
             width: "100%",
             backgroundColor: "#e9ecef",
-            padding: "5px"
+            padding: "5px",
+            display: "flex"
         }
     }
 }

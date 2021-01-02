@@ -1,33 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Web site created using create-react-app" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>React App</title>
-    <style>
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <title>React App</title>
+  <style>
+    .indexBook {
+      width: 250px;
+      height: 200px;
+      background-color: rgb(246, 247, 249);
+      border-radius: 5px;
+      float: left;
+      padding: 5px;
+      margin: 10px 5px;
+      position: relative;
+    }
+
+    @media only screen and (max-width:540px) {
       .indexBook {
-        width: 250px;
-        height: 200px;
-        background-color: rgb(246, 247, 249);
-        border-radius: 5px;
-        float: left;
-        padding: 5px;
-        margin: 10px 5px;
+        width: calc(100% - 10px);
       }
-      @media only screen and (max-width:540px) {
-        .indexBook {
-          width: calc(100% - 10px);
-        }
-      }
-    </style>
-  </head>
-  <body style="background-color: #edeef0;">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+    }
+  </style>
+</head>
+
+<body style="background-color: #edeef0;">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+</body>
+
 </html>

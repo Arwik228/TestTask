@@ -2,8 +2,11 @@ import { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, Form } from "react-bootstrap"
 import NavBar from './components/NavBar'
+import Loading from './components/Loading'
 
 export default class Registration extends Component {
+    timeout = null;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -11,12 +14,15 @@ export default class Registration extends Component {
             password: false,
             confirm: false,
             error: "",
-            finaly: false
+            finaly: false,
+            loading: false
         }
     }
 
-    errorRender(error) {
-        this.setState({ error })
+    async errorRender(error) {
+        clearTimeout(this.timeout);
+        this.setState({ error });
+        this.timeout = await setTimeout(() => this.setState({ error: "" }), 2500);
     }
 
     loginValidator(event) {
@@ -35,7 +41,7 @@ export default class Registration extends Component {
             this.setState({ password: password, error: "" });
         } else {
             this.setState({ password: false });
-            this.errorRender("Пароль не соответствуют правилам:");
+            this.errorRender("Пароль 8+ символов, буквы В/Н регистра");
         }
     }
 
@@ -60,7 +66,7 @@ export default class Registration extends Component {
         });
         localStorage.setItem('user', id);
         localStorage.setItem('token', token);
-        this.setState({ finaly: true });
+        this.setState({ finaly: true, loading: false });
     }
 
     async RegUser() {
@@ -68,8 +74,10 @@ export default class Registration extends Component {
         let email = this.state.email;
         let password = this.state.password;
         if (email && password && this.state.confirm) {
+            this.setState({ loading: true });
             let sample = await usersTable.where("email", "==", email).get();
             if (sample.docs.length) {
+                this.setState({ loading: false });
                 this.errorRender("Этот email уже зарегистрирован");
             } else {
                 let newUser = await usersTable.add({
@@ -78,7 +86,7 @@ export default class Registration extends Component {
                 this.Auth(newUser.id);
             }
         } else {
-            this.errorRender("Заполни все поля");
+            this.errorRender("Проверьте корректность данных");
         }
     }
 
@@ -89,29 +97,32 @@ export default class Registration extends Component {
             return (
                 <div>
                     <NavBar />
-                    <div style={styles.container}>
-                        <div className="alert alert-danger" style={this.state.error ? { opacity: 1 } : { opacity: 0 }} >
-                            <strong>Error!</strong> {this.state.error}.
+                    {this.state.loading ? <Loading /> : false}
+                    <form style={styles.container}>
+                        <div className="alert alert-danger" style={this.state.error ? { opacity: 1, height: "5em" } : { opacity: 0, height: "5em" }} >
+                            <strong>Error!</strong> {this.state.error}
                         </div>
-                        <Form.Group controlId="formBasicEmail">
+                        <div>
                             <Form.Label>Email адрес</Form.Label>
                             <Form.Control type="email" placeholder="Почта" onChange={(l) => this.loginValidator(l)} />
                             <Form.Text className="text-muted">
                                 Мы не передаем ваши данные сторонним сервисам.
                             </Form.Text>
-                        </Form.Group>
-                        <Form.Group controlId="formBasicPassword">
+                        </div>
+                        <div>
                             <Form.Label>Пароль</Form.Label>
-                            <Form.Control type="password" placeholder="Пароль" onChange={(p) => this.passwordValidator(p)} />
-                        </Form.Group>
-                        <Form.Group controlId="formBasicPassword">
+                            <Form.Control type="password" placeholder="Пароль" autoComplete="off" onChange={(p) => this.passwordValidator(p)} />
+                        </div>
+                        <div>
                             <Form.Label>Подтверждение пароля</Form.Label>
-                            <Form.Control type="password" placeholder="Подтверждение" onChange={(p) => this.confirmValidator(p)} />
-                        </Form.Group>
-                        <Button variant="primary" className="btn-primary btn btn-block" onClick={() => this.RegUser()} >
-                            Вход
-                        </Button>
-                    </div>
+                            <Form.Control type="password" placeholder="Подтверждение" autoComplete="off" onChange={(p) => this.confirmValidator(p)} />
+                        </div>
+                        <div style={{ marginTop: "10px" }}>
+                            <Button variant="primary" className="btn-primary btn btn-block" onClick={() => this.RegUser()} >
+                                Вход
+                            </Button>
+                        </div>
+                    </form>
                 </div>
             )
         }

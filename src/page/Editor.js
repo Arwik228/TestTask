@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import NavBar from './components/NavBar'
 import EditorForm from './components/EditorForm'
 import Books from './components/Books'
+import Icon from './components/Icon'
 
 export default class Index extends Component {
     state = {
@@ -10,7 +11,8 @@ export default class Index extends Component {
         auth: true,
         editorForm: false,
         idBook: false,
-        values: false
+        values: false,
+        view: false
     }
 
     async componentDidMount() {
@@ -33,13 +35,22 @@ export default class Index extends Component {
     }
 
     closeForm() {
-        this.setState({ editorForm: false, idBook: false, values: false });
+        this.setState({ editorForm: false, idBook: false, values: false, view: false });
     }
 
     async editForm(id) {
         let bookInfo = this.state.content.filter(e => e.id === id);
         if (bookInfo[0]) {
             this.setState({ editorForm: true, idBook: id, values: bookInfo[0].data });
+        } else {
+            console.log("Error, cant find this book")
+        }
+    }
+
+    async viewForm(id) {
+        let bookInfo = this.state.content.filter(e => e.id === id);
+        if (bookInfo[0]) {
+            this.setState({ editorForm: true, idBook: id, values: bookInfo[0].data, view: true });
         } else {
             console.log("Error, cant find this book")
         }
@@ -82,6 +93,7 @@ export default class Index extends Component {
         this.closeForm();
     }
 
+
     async deleteBook(id) {
         this.setState({ content: this.state.content.filter((book => book.id !== id)) })
         await this.props.db.collection("books").doc(id).delete();
@@ -93,7 +105,7 @@ export default class Index extends Component {
                 <div>
                     {((this.state.editorForm) ?
                         <EditorForm id={this.state.idBook}
-                            values={this.state.values}
+                            values={this.state.values} view={this.state.view}
                             edit={(name, authors, year, isbn) => { this.editBook(name, authors, year, isbn) }}
                             create={(name, authors, year, isbn) => { this.createBook(name, authors, year, isbn) }}
                             close={() => this.closeForm()} />
@@ -106,8 +118,15 @@ export default class Index extends Component {
                                 {(index) => <div style={styles.block} key={index['id']}>
                                     <h6 style={{ whiteSpace: "nowrap", width: "calc(100% - 160px)", overflow: "hidden" }}>{index.data['name']}</h6>
                                     <div style={{ marginLeft: "auto" }}>
-                                        <button className="btn btn-outline-warning" style={{ margin: "0 5px" }} onClick={() => this.editForm(index['id'])}>Update</button>
-                                        <button className="btn btn-outline-danger" onClick={() => this.deleteBook(index['id'])}>Delete</button>
+                                        <button className="btn btn-outline-success" onClick={() => this.viewForm(index['id'])}>
+                                            <Icon name="view" />
+                                        </button>
+                                        <button className="btn btn-outline-warning" style={{ margin: "0 5px" }} onClick={() => this.editForm(index['id'])}>
+                                            <Icon name="edit" />
+                                        </button>
+                                        <button className="btn btn-outline-danger" onClick={() => this.deleteBook(index['id'])}>
+                                            <Icon name="delete" />
+                                        </button>
                                     </div>
                                 </div>}
                             </Books>

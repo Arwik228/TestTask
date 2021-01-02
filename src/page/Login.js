@@ -2,20 +2,26 @@ import { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, Form } from "react-bootstrap"
 import NavBar from './components/NavBar'
+import Loading from './components/Loading'
 
 export default class Login extends Component {
+    timeout = null;
+
     constructor(props) {
         super(props);
         this.state = {
             email: false,
             password: false,
             error: "",
-            finaly: false
+            finaly: false,
+            loading: false
         }
     }
 
-    errorRender(error) {
-        this.setState({ error })
+    async errorRender(error) {
+        clearTimeout(this.timeout);
+        this.setState({ error });
+        this.timeout = await setTimeout(() => this.setState({ error: "" }), 2500);
     }
 
     TokenAuth() {
@@ -27,6 +33,7 @@ export default class Login extends Component {
         let email = this.state.email;
         let password = this.state.password;
         if (email && password) {
+            this.setState({ loading: true });
             let sample = await usersTable.where("email", "==", email).where("password", "==", password).get();
             if (sample.docs.length) {
                 let token = this.TokenAuth() + this.TokenAuth();
@@ -37,10 +44,11 @@ export default class Login extends Component {
                 localStorage.setItem('token', token);
                 this.setState({ finaly: true });
             } else {
-                this.errorRender("Проверьте введенные данные");
+                this.errorRender("Мы не нашли аккаунт по этим данным");
+                this.setState({ loading: false });
             }
         } else {
-            this.errorRender("Заполните все поля");
+            this.errorRender("Проверьте корректность данных");
         }
     }
 
@@ -51,25 +59,28 @@ export default class Login extends Component {
             return (
                 <div>
                     <NavBar />
-                    <div style={styles.container}>
-                        <div className="alert alert-danger" style={this.state.error ? { opacity: 1 } : { opacity: 0 }} >
-                            <strong>Error!</strong> {this.state.error}.
+                    {this.state.loading ? <Loading /> : false}
+                    <form style={styles.container}>
+                        <div className="alert alert-danger" style={(this.state.error ? { opacity: 1, height: "5em" } : { opacity: 0, height: "5em" })} >
+                            <strong>Error!</strong> {this.state.error}
                         </div>
-                        <Form.Group controlId="formBasicEmail">
+                        <div>
                             <Form.Label>Email адрес</Form.Label>
                             <Form.Control type="email" placeholder="Почта" onChange={(l) => this.setState({ email: l.target.value })} />
                             <Form.Text className="text-muted">
                                 Мы не передаем ваши данные сторонним сервисам.
                             </Form.Text>
-                        </Form.Group>
-                        <Form.Group controlId="formBasicPassword">
+                        </div>
+                        <div>
                             <Form.Label>Пароль</Form.Label>
-                            <Form.Control type="password" placeholder="Пароль" onChange={(p) => this.setState({ password: p.target.value })} />
-                        </Form.Group>
-                        <Button variant="primary" className="btn-primary btn btn-block" onClick={() => this.LogUser()} >
-                            Вход
-                        </Button>
-                    </div>
+                            <Form.Control type="password" autoComplete="off" placeholder="Пароль" onChange={(p) => this.setState({ password: p.target.value })} />
+                        </div>
+                        <div style={{ marginTop: "10px" }}>
+                            <Button variant="primary" className="btn-primary btn btn-block" onClick={() => this.LogUser()} >
+                                Вход
+                            </Button>
+                        </div>
+                    </form>
                 </div>
             )
         }
