@@ -127,7 +127,7 @@ export default class Index extends Component {
                         : false}
                     <NavBar exit={() => this.exitFunction()} />
                     <div style={styles.container}>
-                        <button className="btn btn-block btn-success" onClick={() => this.create()}>Создать</button>
+                        <center><button style={{ maxWidth: "400px", width: "100%" }} className="btn btn-block btn-success" onClick={() => this.create()}>Создать</button></center>
                         {(this.state.content[0]) ? (
                             <Books array={this.state.content}>
                                 {(index) => <div style={styles.block} key={index['id']}>

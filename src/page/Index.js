@@ -84,10 +84,10 @@ export default class Index extends Component {
     render() {
         return (
             <div>
-                <NavBar exit={() => this.exitFunction()} />
                 {this.state.deleteForm ?
                     <ConfirmDelete id={this.state.idBook} deleteBook={(id) => { this.deleteBook(id) }} close={() => this.closeForm()} values={this.state.values} />
                     : false}
+                <NavBar exit={() => this.exitFunction()} />
                 <div style={styles.container}>
                     <div className="controlBar">
                         <input type="text" className="form-control" id="formAuthor" placeholder="Название книги" onChange={(e) => { this.filterWord(e.target.value) }} />
